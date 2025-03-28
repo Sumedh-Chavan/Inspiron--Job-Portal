@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.csiapp_2.seeker.SeekerDashboardActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : ComponentActivity() {
@@ -45,7 +46,8 @@ class LoginActivity : ComponentActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Login successful -> Navigate to MainActivity
-                    startActivity(Intent(this, MainActivity::class.java))
+                    startActivity(Intent(this, SeekerDashboardActivity::class.java))
+                    startActivity(intent)
                     finish()
                 } else {
                     // Login failed -> Show error

@@ -22,17 +22,35 @@
         <activity
             android:name=".LoginActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        </activity>
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity> <!-- ✅ Main Activity (After Login) -->
+        <!-- ✅ Main Activity (After Login) -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Csiapp_2" /> <!-- ✅ Firebase Cloud Messaging (FCM) Service -->
+            android:theme="@style/Theme.Csiapp_2" />
+
+        <!-- ✅ Add SeekerDashboardActivity -->
+        <activity
+            android:name=".seeker.SeekerDashboardActivity"
+            android:exported="true"
+            android:label="Dashboard"
+            android:theme="@style/Theme.Csiapp_2">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
+
+        <activity android:name=".seeker.JobListActivity"/>
+
+        <activity android:name=".seeker.JobDetailsActivity"/>
+
+        <activity android:name=".seeker.ApplyJobActivity"/>
+
+
+        <!-- ✅ Firebase Cloud Messaging (FCM) Service -->
         <service
             android:name=".MyFirebaseMessagingService"
             android:exported="false">
