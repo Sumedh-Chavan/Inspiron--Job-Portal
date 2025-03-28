@@ -18,11 +18,11 @@ import com.example.csiapp_2.LoginActivity
 
 class SeekerDashboardActivity: ComponentActivity() {
 
-//    private lateinit var auth: FirebaseAuth
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        auth = FirebaseAuth.getInstance()
+        auth = FirebaseAuth.getInstance()
 
         setContent {
             SeekerDashboardScreen(
@@ -30,7 +30,7 @@ class SeekerDashboardActivity: ComponentActivity() {
                 onInbox = { startActivity(Intent(this, SeekerInboxActivity::class.java)) },
                 onProfile = { startActivity(Intent(this, SeekerProfileActivity::class.java)) },
                 onLogout = {
-//                    auth.signOut()
+                    auth.signOut()
                     startActivity(Intent(this, LoginActivity::class.java))
                     finish()
                 }
@@ -48,11 +48,11 @@ fun SeekerDashboardScreen(
 ) {
     var userName by remember { mutableStateOf("") }
 
-//    // Fetch User Name (Optional)
-//    LaunchedEffect(Unit) {
-//        val currentUser = FirebaseAuth.getInstance().currentUser
-//        userName = currentUser?.displayName ?: "Job Seeker"
-//    }
+    // Fetch User Name (Optional)
+    LaunchedEffect(Unit) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        userName = currentUser?.displayName ?: "Job Seeker"
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(

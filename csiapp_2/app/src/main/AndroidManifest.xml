@@ -22,6 +22,10 @@
         <activity
             android:name=".LoginActivity"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <!-- ✅ Main Activity (After Login) -->
@@ -37,10 +41,6 @@
             android:exported="true"
             android:label="Dashboard"
             android:theme="@style/Theme.Csiapp_2">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
         </activity>
 
         <activity android:name=".seeker.JobListActivity"/>

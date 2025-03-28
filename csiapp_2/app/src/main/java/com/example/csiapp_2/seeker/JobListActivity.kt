@@ -47,29 +47,29 @@ fun JobListScreen(
     var jobList by remember { mutableStateOf<List<Job>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
-//    // Fetch jobs from Firestore
-//    LaunchedEffect(Unit) {
-//        FirebaseFirestore.getInstance()
-//            .collection("job_posts")
-//            .get()
-//            .addOnSuccessListener { result ->
-//                val jobs = result.documents.mapNotNull { doc ->
-//                    doc.toObject(Job::class.java)?.copy(id = doc.id)
-//                }
-//                jobList = jobs
-//                isLoading = false
-//            }
-//            .addOnFailureListener {
-//                isLoading = false
-//            }
-//    }
+    // Fetch jobs from Firestore
+    LaunchedEffect(Unit) {
+        FirebaseFirestore.getInstance()
+            .collection("job_posts")
+            .get()
+            .addOnSuccessListener { result ->
+                val jobs = result.documents.mapNotNull { doc ->
+                    doc.toObject(Job::class.java)?.copy(id = doc.id)
+                }
+                jobList = jobs
+                isLoading = false
+            }
+            .addOnFailureListener {
+                isLoading = false
+            }
+    }
 
-    //mock data
-    jobList = listOf(
-        Job("1", "Software Engineer", "Google", "California", "$120k"),
-        Job("2", "Data Analyst", "Amazon", "New York", "$100k")
-    )
-    isLoading = false
+//    //mock data
+//    jobList = listOf(
+//        Job("1", "Software Engineer", "Google", "California", "$120k"),
+//        Job("2", "Data Analyst", "Amazon", "New York", "$100k")
+//    )
+//    isLoading = false
 
 
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -116,10 +116,10 @@ fun JobItem(job: Job, onClick: () -> Unit) {
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewJobListScreen() {
-    JobListScreen(
-        onJobClick = {}
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewJobListScreen() {
+//    JobListScreen(
+//        onJobClick = {}
+//    )
+//}
