@@ -27,8 +27,8 @@ class SeekerDashboardActivity: ComponentActivity() {
         setContent {
             SeekerDashboardScreen(
                 onSearchJobs = { startActivity(Intent(this, JobListActivity::class.java)) },
-                onInbox = { Log.d("Test", "Inbox Clicked") },
-                onProfile = { Log.d("Test", "Profile Clicked") },
+                onInbox = { startActivity(Intent(this, SeekerInboxActivity::class.java)) },
+                onProfile = { startActivity(Intent(this, SeekerProfileActivity::class.java)) },
                 onLogout = {
 //                    auth.signOut()
                     startActivity(Intent(this, LoginActivity::class.java))

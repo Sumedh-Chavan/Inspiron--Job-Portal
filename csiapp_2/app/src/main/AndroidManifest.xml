@@ -49,6 +49,10 @@
 
         <activity android:name=".seeker.ApplyJobActivity"/>
 
+        <activity android:name=".seeker.SeekerProfileActivity" />
+
+        <activity android:name=".seeker.SeekerInboxActivity" />
+
 
         <!-- ✅ Firebase Cloud Messaging (FCM) Service -->
         <service
