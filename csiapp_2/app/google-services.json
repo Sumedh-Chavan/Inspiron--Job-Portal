@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "275914386149",
+    "project_id": "kotlin-fitness-hub",
+    "storage_bucket": "kotlin-fitness-hub.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:275914386149:android:f29ca80b1d6f33c133020c",
+        "android_client_info": {
+          "package_name": "com.example.csiapp_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqt_DxT2UrXbS5yR4__VZ_73R6Gs1hN4Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
