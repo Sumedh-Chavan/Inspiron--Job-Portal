@@ -41,10 +41,28 @@ fun ApplyJobScreen(jobId: String) {
     var isUploading by remember { mutableStateOf(false) }
     var uploadSuccess by remember { mutableStateOf<Boolean?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var hasApplied by remember { mutableStateOf(false) }
 
     val seekerId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    val userEmail = FirebaseAuth.getInstance().currentUser?.email
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val db = FirebaseFirestore.getInstance()
+
+    // Check if the seeker has already applied
+    LaunchedEffect(jobId, seekerId) {
+        db.collection("job_posts").document(jobId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val applicants = document.get("applicants") as? List<String> ?: emptyList()
+                    hasApplied = applicants.contains(userEmail)
+                }
+            }
+            .addOnFailureListener {
+                errorMessage = "Failed to check application status"
+            }
+    }
 
     val pickResumeLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -75,7 +93,7 @@ fun ApplyJobScreen(jobId: String) {
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Button(onClick = { pickResumeLauncher.launch("application/pdf") }) {
+                Button(onClick = { pickResumeLauncher.launch("application/pdf") }, enabled = !hasApplied) {
                     Text(if (resumeUri != null) "Resume Selected" else "Upload Resume (PDF)")
                 }
 
@@ -98,15 +116,21 @@ fun ApplyJobScreen(jobId: String) {
                                         if (error != null) {
                                             errorMessage = error
                                         }
+                                        if (success) {
+                                            hasApplied = true
+                                        }
                                     },
                                     setUploading = { isUploading = it }
                                 )
                             }
                         }
                     },
-                    enabled = !isUploading && resumeUri != null
+                    enabled = !isUploading && resumeUri != null && !hasApplied,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (hasApplied) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
+                    )
                 ) {
-                    Text(if (isUploading) "Uploading..." else "Apply Now")
+                    Text(if (hasApplied) "Applied" else "Apply Now")
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -129,6 +153,7 @@ fun ApplyJobScreen(jobId: String) {
     }
 }
 
+
 fun uploadResumeAndApply(
     seekerId: String,
     jobId: String,
@@ -138,50 +163,75 @@ fun uploadResumeAndApply(
 ) {
     setUploading(true)
 
-    // real firebase stepup
-//    val storageRef = FirebaseStorage.getInstance()
-//        .getReference("resumes/$seekerId/$jobId.pdf")
-//
-//    storageRef.putFile(resumeUri)
-//        .addOnSuccessListener {
-//            storageRef.downloadUrl.addOnSuccessListener { resumeDownloadUri ->
-//
-//                val application = hashMapOf(
-//                    "seeker_id" to seekerId,
-//                    "job_id" to jobId,
-//                    "status" to "pending",
-//                    "resumeUrl" to resumeDownloadUri.toString()
-//                )
-//
-//                FirebaseFirestore.getInstance()
-//                    .collection("applications")
-//                    .add(application)
-//                    .addOnSuccessListener {
-//                        onResult(true, null)
-//                        setUploading(false)
-//                    }
-//                    .addOnFailureListener { e ->
-//                        onResult(false, "Failed to submit application: ${e.message}")
-//                        setUploading(false)
-//                    }
-//
-//            }.addOnFailureListener { e ->
-//                onResult(false, "Failed to get resume URL: ${e.message}")
-//                setUploading(false)
-//            }
-//        }
-//        .addOnFailureListener { e ->
-//            onResult(false, "Resume upload failed: ${e.message}")
-//            setUploading(false)
-//        }
+    val auth = FirebaseAuth.getInstance()
+    val db = FirebaseFirestore.getInstance()
+    val userEmail = auth.currentUser?.email
 
-    // mockup
-    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-        if (jobId.isNotEmpty()) {
-            onResult(true, null) // Mock success
-        } else {
-            onResult(false, "Mocked: Failed to submit application.") // Mock failure
-        }
+    if (userEmail == null) {
+        onResult(false, "User email not found.")
         setUploading(false)
-    }, 2000) // Simulate network delay
+        return
+    }
+
+    val storageRef = FirebaseStorage.getInstance()
+        .getReference("resumes/$seekerId/$jobId.pdf")
+
+    storageRef.putFile(resumeUri)
+        .addOnSuccessListener {
+            storageRef.downloadUrl.addOnSuccessListener { resumeDownloadUri ->
+
+                val application = hashMapOf(
+                    "seeker_id" to seekerId,
+                    "job_id" to jobId,
+                    "status" to "pending",
+                    "resumeUrl" to resumeDownloadUri.toString()
+                )
+
+                db.collection("applications")
+                    .add(application)
+                    .addOnSuccessListener {
+                        // Now update the job post with the applicant's email
+                        val jobPostRef = db.collection("job_posts").document(jobId)
+
+                        jobPostRef.get()
+                            .addOnSuccessListener { document ->
+                                if (document.exists()) {
+                                    val currentApplicants = document.get("applicants") as? MutableList<String> ?: mutableListOf()
+                                    if (!currentApplicants.contains(userEmail)) {
+                                        currentApplicants.add(userEmail)
+
+                                        jobPostRef.update("applicants", currentApplicants)
+                                            .addOnSuccessListener {
+                                                onResult(true, null)
+                                            }
+                                            .addOnFailureListener { e ->
+                                                onResult(false, "Failed to update job post: ${e.message}")
+                                            }
+                                    } else {
+                                        onResult(true, null) // Already applied
+                                    }
+                                } else {
+                                    onResult(false, "Job post not found.")
+                                }
+                                setUploading(false)
+                            }
+                            .addOnFailureListener { e ->
+                                onResult(false, "Failed to fetch job post: ${e.message}")
+                                setUploading(false)
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        onResult(false, "Failed to submit application: ${e.message}")
+                        setUploading(false)
+                    }
+
+            }.addOnFailureListener { e ->
+                onResult(false, "Failed to get resume URL: ${e.message}")
+                setUploading(false)
+            }
+        }
+        .addOnFailureListener { e ->
+            onResult(false, "Resume upload failed: ${e.message}")
+            setUploading(false)
+        }
 }

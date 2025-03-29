@@ -36,13 +36,13 @@ class SeekerProfileActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SeekerProfileScreen() {
-    // Get current user id from FirebaseAuth.
-//    val auth = FirebaseAuth.getInstance()
-//    val userId = auth.currentUser?.uid ?: ""
-//    val firestore = FirebaseFirestore.getInstance()
 
-    // mock
-    val userId = ""
+    val auth = FirebaseAuth.getInstance()
+    val userId = auth.currentUser?.uid ?: ""
+    val firestore = FirebaseFirestore.getInstance()
+
+//    // mock
+//    val userId = ""
 
     // UI states for profile fields.
     var isLoading by remember { mutableStateOf(true) }
@@ -55,37 +55,37 @@ fun SeekerProfileScreen() {
     var location by remember { mutableStateOf("") }
 
 //    // Fetch the profile document from Firestore once the Composable enters composition.
-//    LaunchedEffect(userId) {
-//        if (userId.isNotEmpty()) {
-//            firestore.collection("users").document(userId).get()
-//                .addOnSuccessListener { doc ->
-//                    val profile = doc.toObject(SeekerProfile::class.java)
-//                    profile?.let {
-//                        name = it.name
-//                        email = it.email
-//                        skillsText = it.skills.joinToString(", ")
-//                        experience = it.experience.toString()
-//                        location = it.location
-//                    }
-//                    isLoading = false
-//                }
-//                .addOnFailureListener {
-//                    isLoading = false
-//                }
-//        } else {
-//            isLoading = false
-//        }
-//    }
-
-    // Mock Data for Testing
-    LaunchedEffect(Unit) {
-        isLoading = false
-        name = "John Doe"
-        email = "johndoe@example.com"
-        skillsText = "Kotlin, Jetpack Compose, Firebase"
-        experience = "3"
-        location = "New York"
+    LaunchedEffect(userId) {
+        if (userId.isNotEmpty()) {
+            firestore.collection("users").document(userId).get()
+                .addOnSuccessListener { doc ->
+                    val profile = doc.toObject(SeekerProfile::class.java)
+                    profile?.let {
+                        name = it.name
+                        email = it.email
+                        skillsText = it.skills.joinToString(", ")
+                        experience = it.experience.toString()
+                        location = it.location
+                    }
+                    isLoading = false
+                }
+                .addOnFailureListener {
+                    isLoading = false
+                }
+        } else {
+            isLoading = false
+        }
     }
+
+//    // Mock Data for Testing
+//    LaunchedEffect(Unit) {
+//        isLoading = false
+//        name = "John Doe"
+//        email = "johndoe@example.com"
+//        skillsText = "Kotlin, Jetpack Compose, Firebase"
+//        experience = "3"
+//        location = "New York"
+//    }
 
 
     // UI layout begins here.
@@ -163,31 +163,33 @@ fun SeekerProfileScreen() {
                 Button(
                     onClick = {
 
-                        // for mock purpose to avoid firebase updates
-                        if (userId.isEmpty()) {
-                            updateSuccess = true // Simulate success in mock mode
-                        }
-                        else{
-//                            updateInProgress = true
-//                            // Prepare the updated profile data.
-//                            val updatedProfile = mapOf(
-//                                "name" to name,
-//                                "skills" to skillsText.split(",").map { it.trim() },
-//                                "experience" to (experience.toIntOrNull() ?: 0),
-//                                "location" to location
-//                            )
-//                            // Update the Firestore document.
-//                            firestore.collection("users").document(userId)
-//                                .update(updatedProfile as Map<String, Any>)
-//                                .addOnSuccessListener {
-//                                    updateSuccess = true
-//                                    updateInProgress = false
-//                                }
-//                                .addOnFailureListener {
-//                                    updateSuccess = false
-//                                    updateInProgress = false
-//                                }
-                        }
+//                        // for mock purpose to avoid firebase updates
+//                        if (userId.isEmpty()) {
+//                            updateSuccess = true // Simulate success in mock mode
+//                        }
+//                        else{
+//
+//                        }
+
+                        updateInProgress = true
+                        // Prepare the updated profile data.
+                        val updatedProfile = mapOf(
+                            "name" to name,
+                            "skills" to skillsText.split(",").map { it.trim() },
+                            "experience" to (experience.toIntOrNull() ?: 0),
+                            "location" to location
+                        )
+                        // Update the Firestore document.
+                        firestore.collection("users").document(userId)
+                            .update(updatedProfile as Map<String, Any>)
+                            .addOnSuccessListener {
+                                updateSuccess = true
+                                updateInProgress = false
+                            }
+                            .addOnFailureListener {
+                                updateSuccess = false
+                                updateInProgress = false
+                            }
 
 
 

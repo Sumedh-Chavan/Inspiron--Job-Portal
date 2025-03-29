@@ -2,6 +2,7 @@ package com.example.csiapp_2.seeker
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -45,9 +46,9 @@ fun JobDetailsScreen(jobId: String) {
     var job by remember { mutableStateOf<JobDetails?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 
-//    // Fetch Job Details
-//    LaunchedEffect(jobId) {
-//        if (jobId.isNotEmpty()) {
+    // Fetch Job Details
+    LaunchedEffect(jobId) {
+        if (jobId.isNotEmpty()) {
 //            FirebaseFirestore.getInstance()
 //                .collection("job_posts")
 //                .document(jobId)
@@ -61,22 +62,47 @@ fun JobDetailsScreen(jobId: String) {
 //                .addOnFailureListener {
 //                    isLoading = false
 //                }
-//        } else {
-//            isLoading = false
-//        }
-//    }
+            FirebaseFirestore.getInstance()
+                .collection("job_posts")
+                .document(jobId)
+                .get()
+                .addOnSuccessListener { doc ->
+                    if (doc.exists()) {
+                        val skillsList = doc.get("skills") as? List<String> ?: emptyList()
+                        Log.d("FirestoreDebug", "Fetched skills: $skillsList") // 🔍 Debugging Log
 
-    //mocking
-    // Mock data for testing
-    job = JobDetails(
-        title = "Software Engineer",
-        company = "Mock Corp",
-        salary = "$100k - $120k",
-        location = "Remote",
-        description = "Develop and maintain cutting-edge applications.",
-        skills_required = listOf("Kotlin", "Jetpack Compose", "Firebase")
-    )
-    isLoading = false
+                        job = JobDetails(
+                            title = doc.getString("title") ?: "",
+                            company = doc.getString("company") ?: "",
+                            salary = doc.getString("salary") ?: "",
+                            location = doc.getString("location") ?: "",
+                            description = doc.getString("description") ?: "",
+                            skills_required = skillsList
+                        )
+                    }
+                    isLoading = false
+                }
+                .addOnFailureListener { e ->
+                    Log.e("FirestoreError", "Error fetching job details", e)
+                    isLoading = false
+                }
+
+        } else {
+            isLoading = false
+        }
+    }
+
+//    //mocking
+//    // Mock data for testing
+//    job = JobDetails(
+//        title = "Software Engineer",
+//        company = "Mock Corp",
+//        salary = "$100k - $120k",
+//        location = "Remote",
+//        description = "Develop and maintain cutting-edge applications.",
+//        skills_required = listOf("Kotlin", "Jetpack Compose", "Firebase")
+//    )
+//    isLoading = false
 
     Surface(modifier = Modifier.fillMaxSize()) {
         when {
