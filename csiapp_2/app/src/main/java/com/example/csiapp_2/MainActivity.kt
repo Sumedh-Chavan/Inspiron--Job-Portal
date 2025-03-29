@@ -1,5 +1,6 @@
 package com.example.csiapp_2
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,12 +27,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 import com.example.csiapp_2.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.platform.LocalContext
+import com.example.csiapp_2.recruiter.PostJobActivity
+import com.example.csiapp_2.recruiter.RecruiterDashboardActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +49,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Preview
 @Composable
 fun WorkoutAppUI() {
     val scrollState = rememberScrollState()
@@ -64,9 +72,9 @@ fun WorkoutAppUI() {
         Spacer(modifier = Modifier.height(16.dp))
         ChoiceButtons(scrollState,coroutineScope)
         Spacer(modifier = Modifier.height(16.dp))
-        WorkoutHeading()
-        Spacer(modifier = Modifier.height(16.dp))
-        WorkoutGrid()
+//        WorkoutHeading()
+//        Spacer(modifier = Modifier.height(16.dp))
+        OptionsGrid()
         Spacer(modifier = Modifier.height(24.dp))
         DietPlanHeading()
         Spacer(modifier = Modifier.height(16.dp))
@@ -88,7 +96,7 @@ fun AppTitle() {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "Kotlin Fitness Hub",
+            text = "Job Portal",
             color = Color.White,
             fontSize = 28.sp
         )
@@ -112,17 +120,21 @@ fun SearchBar() {
 
 @Composable
 fun ChoiceButtons(scrollState: androidx.compose.foundation.ScrollState, coroutineScope: CoroutineScope) {
+    val context = LocalContext.current
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        listOf("Workout" to 600, "Diet Plan" to 1600, "Yoga" to 2600).forEach { (label, scrollTo) ->
+        listOf("Sign Up" to 500, "Sign In" to 1000).forEach { (label, scrollTo) ->
             Button(
-                onClick = {
-                    coroutineScope.launch {
-                        scrollState.animateScrollTo(scrollTo)
-                    }
-                },
+////                onClick = {
+////                    coroutineScope.launch {
+////                        scrollState.animateScrollTo(scrollTo)
+////                    }
+//                },
+                onClick = { val intent = Intent(context , RecruiterDashboardActivity::class.java)
+                    context.startActivity(intent)},
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.3f)),
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
@@ -135,43 +147,43 @@ fun ChoiceButtons(scrollState: androidx.compose.foundation.ScrollState, coroutin
     }
 }
 
-@Composable
-fun WorkoutHeading() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Brush.horizontalGradient(listOf(Color(0xFF6A11CB), Color(0xFF2575FC))))
-            .padding(12.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Workouts",
-            color = Color.White,
-            fontSize = 24.sp
-        )
-    }
-}
+//@Composable
+//fun WorkoutHeading() {
+//    Box(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .background(Brush.horizontalGradient(listOf(Color(0xFF6A11CB), Color(0xFF2575FC))))
+//            .padding(12.dp),
+//        contentAlignment = Alignment.Center
+//    ) {
+//        Text(
+//            text = "Workouts",
+//            color = Color.White,
+//            fontSize = 24.sp
+//        )
+//    }
+//}
 
 @Composable
-fun WorkoutGrid() {
-    val workouts = listOf(
-        Pair("Legs", R.drawable.leg),
-        Pair("Shoulders", R.drawable.shoulder),
-        Pair("Arms", R.drawable.arms),
-        Pair("Back", R.drawable.back),
-        Pair("Chest", R.drawable.chest),
-        Pair("Abs", R.drawable.abs)
+fun OptionsGrid() {
+    val options = listOf(
+        Pair("About", R.drawable.leg),
+        Pair("Contact Us", R.drawable.shoulder),
+//        Pair("Arms", R.drawable.arms),
+//        Pair("Back", R.drawable.back),
+//        Pair("Chest", R.drawable.chest),
+//        Pair("Abs", R.drawable.abs)
     )
 
     Column {
-        for (i in workouts.indices step 2) {
+        for (i in options.indices step 2) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                WorkoutCard(workouts[i].first, workouts[i].second, Modifier.weight(1f))
-                if (i + 1 < workouts.size) {
-                    WorkoutCard(workouts[i + 1].first, workouts[i + 1].second, Modifier.weight(1f))
+                WorkoutCard(options[i].first, options[i].second, Modifier.weight(1f))
+                if (i + 1 < options.size) {
+                    WorkoutCard(options[i + 1].first, options[i + 1].second, Modifier.weight(1f))
                 } else {
                     Spacer(modifier = Modifier.weight(1f))
                 }
@@ -249,7 +261,7 @@ fun WorkoutCard(title: String, imageRes: Int, modifier: Modifier) {
                     }
                 }
             }
-            .pointerHoverIcon(PointerIconDefaults.Hand),
+            .pointerHoverIcon(PointerIcon.Hand),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
