@@ -14,8 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.csiapp_2.recruiter.RecruiterDashboardActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : ComponentActivity() {
@@ -45,7 +47,7 @@ class LoginActivity : ComponentActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Login successful -> Navigate to MainActivity
-                    startActivity(Intent(this, MainActivity::class.java))
+                    startActivity(Intent(this, RecruiterDashboardActivity::class.java))
                     finish()
                 } else {
                     // Login failed -> Show error
@@ -93,7 +95,7 @@ fun LoginScreen(onLoginClick: (String, String) -> Unit, onSignUpClick: (String, 
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") },
+            label = { Text("Email",color = Color.White) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -102,7 +104,7 @@ fun LoginScreen(onLoginClick: (String, String) -> Unit, onSignUpClick: (String, 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text("Password",color = Color.White) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )

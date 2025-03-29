@@ -33,6 +33,22 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Csiapp_2" /> <!-- ✅ Firebase Cloud Messaging (FCM) Service -->
+
+        <activity
+            android:name=".recruiter.RecruiterDashboardActivity"
+            android:exported="true"
+            android:label="Dashboard"
+            android:theme="@style/Theme.Csiapp_2">
+        </activity>
+
+        <activity android:name=".recruiter.JobDetailsActivity"/>
+
+        <activity android:name=".recruiter.ViewApplicantsActivity"/>
+
+        <activity android:name=".recruiter.PostJobActivity"/>
+
+        <activity android:name=".recruiter.RecruiterInboxActivity" />
+
         <service
             android:name=".MyFirebaseMessagingService"
             android:exported="false">
