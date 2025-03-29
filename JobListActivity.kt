@@ -39,59 +39,57 @@ class JobListActivity : ComponentActivity() {
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobListScreen(onJobClick: (String) -> Unit) {
     var jobList by remember { mutableStateOf<List<Job>>(emptyList()) }
+    var filteredJobs by remember { mutableStateOf<List<Job>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var locationFilter by remember { mutableStateOf("") }
     var salaryFilter by remember { mutableStateOf("") }
     var titleFilter by remember { mutableStateOf("") }
 
-    fun fetchFilteredJobs() {
+    var locations by remember { mutableStateOf<List<String>>(emptyList()) }
+    var salaries by remember { mutableStateOf<List<String>>(emptyList()) }
+    var titles by remember { mutableStateOf<List<String>>(emptyList()) }
+
+    val db = FirebaseFirestore.getInstance().collection("job_posts")
+
+    // Fetch all jobs initially
+    LaunchedEffect(Unit) {
         isLoading = true
-        val db = FirebaseFirestore.getInstance().collection("job_posts")
-
         db.get().addOnSuccessListener { result ->
-            val jobs = result.documents.mapNotNull { doc ->
-                doc.toObject(Job::class.java)?.copy(id = doc.id)
-            }.filter { job ->
-                // Apply filters only if they are provided
-                val locationMatches = locationFilter.isBlank() || job.location.contains(locationFilter, ignoreCase = true)
-                val titleMatches = titleFilter.isBlank() || job.title.contains(titleFilter, ignoreCase = true)
-
-                val enteredSalary = salaryFilter.toIntOrNull()
-                val jobSalary = job.salary.filter { it.isDigit() }.toIntOrNull()
-
-                val salaryMatches = enteredSalary == null || (jobSalary != null && jobSalary >= enteredSalary)
-
-                // Job must satisfy all active filters
-                locationMatches && titleMatches && salaryMatches
-            }
-            jobList = jobs
+            val allJobs = result.documents.mapNotNull { it.toObject(Job::class.java)?.copy(id = it.id) }
+            jobList = allJobs
+            filteredJobs = allJobs // Initially, show all jobs
+            locations = allJobs.map { it.location }.distinct()
+            salaries = allJobs.map { it.salary }.distinct()
+            titles = allJobs.map { it.title }.distinct()
             isLoading = false
         }.addOnFailureListener {
             isLoading = false
         }
     }
 
+    fun applyFilters() {
+        filteredJobs = jobList.filter { job ->
+            val locationMatches = locationFilter.isBlank() || job.location == locationFilter
+            val titleMatches = titleFilter.isBlank() || job.title == titleFilter
+            val enteredSalary = salaryFilter.toIntOrNull()
+            val jobSalary = job.salary.filter { it.isDigit() }.toIntOrNull()
+            val salaryMatches = enteredSalary == null || (jobSalary != null && jobSalary >= enteredSalary)
+            locationMatches && titleMatches && salaryMatches
+        }
+    }
+
     Surface(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Column {
-            // Location Filter Input
-            OutlinedTextField(
-                value = locationFilter,
-                onValueChange = { locationFilter = it },
-                label = { Text("Enter Location (Optional)") },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-            )
+            // Location Filter Dropdown
+            DropdownMenuFilter("Select Location", locationFilter, locations) { locationFilter = it }
 
-            // Role Filter Input
-            OutlinedTextField(
-                value = titleFilter,
-                onValueChange = { titleFilter = it },
-                label = { Text("Enter Role (Optional)") },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-            )
+            // Role Filter Dropdown
+            DropdownMenuFilter("Select Role", titleFilter, titles) { titleFilter = it }
 
             // Salary Filter Input
             OutlinedTextField(
@@ -103,7 +101,7 @@ fun JobListScreen(onJobClick: (String) -> Unit) {
 
             // Search Button
             Button(
-                onClick = { fetchFilteredJobs() },
+                onClick = { applyFilters() },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Search")
@@ -116,19 +114,43 @@ fun JobListScreen(onJobClick: (String) -> Unit) {
                     CircularProgressIndicator()
                 }
             } else {
-                if (jobList.isEmpty()) {
+                if (filteredJobs.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text("No jobs available.")
                     }
                 } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(jobList) { job ->
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(filteredJobs) { job ->
                             JobItem(job = job, onClick = { onJobClick(job.id) })
                             Spacer(modifier = Modifier.height(12.dp))
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun DropdownMenuFilter(label: String, selectedValue: String, options: List<String>, onSelect: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+        Text(label, style = MaterialTheme.typography.bodyMedium)
+        Box {
+            OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(if (selectedValue.isBlank()) "Select" else selectedValue)
+            }
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            onSelect(option)
+                            expanded = false
+                        }
+                    )
                 }
             }
         }
