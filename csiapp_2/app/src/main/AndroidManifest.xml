@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -24,15 +25,37 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- ✅ Main Activity (After Login) -->
+        </activity>
+
+        <!-- ✅ Main Activity (After Login) -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Csiapp_2" /> <!-- ✅ Firebase Cloud Messaging (FCM) Service -->
+            android:theme="@style/Theme.Csiapp_2" />
+
+        <!-- ✅ Add SeekerDashboardActivity -->
+        <activity
+            android:name=".seeker.SeekerDashboardActivity"
+            android:exported="true"
+            android:label="Dashboard"
+            android:theme="@style/Theme.Csiapp_2">
+        </activity>
+
+        <activity android:name=".seeker.JobListActivity"/>
+
+        <activity android:name=".seeker.JobDetailsActivity"/>
+
+        <activity android:name=".seeker.ApplyJobActivity"/>
+
+        <activity android:name=".seeker.SeekerProfileActivity" />
+
+        <activity android:name=".seeker.SeekerInboxActivity" />
+
+
+        <!-- ✅ Firebase Cloud Messaging (FCM) Service -->
         <service
             android:name=".MyFirebaseMessagingService"
             android:exported="false">
