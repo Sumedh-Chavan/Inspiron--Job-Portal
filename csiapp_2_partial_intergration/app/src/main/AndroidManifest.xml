@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- ✅ Required Permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Csiapp_2"
+        tools:targetApi="31">
+        <activity
+            android:name=".auth.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".auth.RecruiterRegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".auth.SeekerRegisterActivity"
+            android:exported="false" /> <!-- ✅ Role Selection Activity (Set as Launcher) -->
+        <activity
+            android:name=".auth.RoleSelectionActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity> <!-- ✅ Register & Main Activity -->
+        <activity
+            android:name=".auth.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Csiapp_2" />
+
+        <!-- ✅ Add SeekerDashboardActivity -->
+        <activity
+            android:name=".seeker.SeekerDashboardActivity"
+            android:exported="true"
+            android:label="Dashboard"
+            android:theme="@style/Theme.Csiapp_2">
+        </activity>
+
+        <activity android:name=".seeker.JobListActivity"/>
+
+        <activity android:name=".seeker.SeekerJobDetailsActivity"/>
+
+        <activity android:name=".seeker.ApplyJobActivity"/>
+
+        <activity android:name=".seeker.SeekerProfileActivity" />
+
+        <activity android:name=".seeker.SeekerInboxActivity" />
+
+        <activity
+            android:name=".recruiter.RecruiterDashboardActivity"
+            android:exported="true"
+            android:label="Dashboard"
+            android:theme="@style/Theme.Csiapp_2">
+        </activity>
+
+        <activity android:name=".recruiter.JobDetailsActivity"/>
+
+        <activity android:name=".recruiter.ViewApplicantsActivity"/>
+
+        <activity android:name=".recruiter.PostJobActivity"/>
+
+        <activity android:name=".recruiter.RecruiterInboxActivity" />
+
+    </application>
+
+
+
+</manifest>
