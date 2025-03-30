@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.csiapp_2.recruiter.JobListActivity
 import com.google.firebase.auth.FirebaseAuth
 //import com.example.csiapp_2.LoginActivity
 
@@ -53,6 +54,7 @@ fun SeekerDashboardScreen(
         val currentUser = FirebaseAuth.getInstance().currentUser
         userName = currentUser?.displayName ?: "Job Seeker"
     }
+
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(

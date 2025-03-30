@@ -13,19 +13,23 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import com.example.csiapp_2.MainActivity
 import com.example.csiapp_2.R
 import com.example.csiapp_2.seeker.SeekerDashboardActivity
 import com.example.csiapp_2.recruiter.RecruiterDashboardActivity
+import com.example.csiapp_2.ui.theme.Purple40  // Make sure this is defined the same way as RegisterActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : ComponentActivity() {
@@ -64,8 +68,12 @@ class LoginActivity : ComponentActivity() {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .alpha(0.7f)
-                    .background(Color.Black)
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color(0xFF2193b0), Color(0xFF6dd5ed)) // Using the same exact gradient colors from RegisterActivity
+                        )
+                    )
+                    .alpha(0.85f)
             )
 
             Column(
@@ -78,15 +86,25 @@ class LoginActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White.copy(alpha = 1f))
-                        .padding(16.dp)
+                        .background(Color.White.copy(alpha = 0.95f))
+                        .padding(20.dp)
                 ) {
                     Column {
+                        Text(
+                            text = "Login to Your Account",
+                            fontSize = 24.sp,
+                            color = Color(0xFF2193b0), // Same text color used in RegisterActivity
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
                         CustomTextField(value = email, onValueChange = { email = it }, label = "Email")
                         CustomTextField(value = password, onValueChange = { password = it }, label = "Password", isPassword = true)
 
                         if (showError) {
-                            Text("Please fill all the details!", color = Color.Red)
+                            Text("Please enter valid details!", color = Color.Red, fontSize = 14.sp)
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -100,9 +118,10 @@ class LoginActivity : ComponentActivity() {
                                     showError = true
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.elevatedButtonColors(containerColor = Color(0xFF2193b0)) // Matching exact button color
                         ) {
-                            Text("Login")
+                            Text("Login", color = Color.White, fontSize = 18.sp)
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -116,9 +135,10 @@ class LoginActivity : ComponentActivity() {
                                 }
                                 startActivity(intent)
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF2193b0)) // Same color as RegisterActivity
                         ) {
-                            Text("Don't have an account? Register")
+                            Text("Don't have an account? Register", fontSize = 16.sp)
                         }
                     }
                 }
@@ -126,13 +146,12 @@ class LoginActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun CustomTextField(value: String, onValueChange: (String) -> Unit, label: String, isPassword: Boolean = false) {
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text(label, color = Color(0xFF6200EE)) },
+            label = { Text(label, color = Purple40) }, // Ensure it's the same `Purple40` as in RegisterActivity
             textStyle = LocalTextStyle.current.copy(color = Color.Black),
             singleLine = true,
             modifier = Modifier

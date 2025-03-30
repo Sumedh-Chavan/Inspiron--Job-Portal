@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -103,6 +104,8 @@ fun ApplyJobScreen(jobId: String) {
                     CircularProgressIndicator()
                 }
 
+                val context = LocalContext.current
+
                 Button(
                     onClick = {
                         if (resumeUri != null) {
@@ -118,6 +121,8 @@ fun ApplyJobScreen(jobId: String) {
                                         }
                                         if (success) {
                                             hasApplied = true
+                                            // Redirect to SeekerDashboardActivity
+                                            context.startActivity(Intent(context, SeekerAppliedJobsActivity::class.java))
                                         }
                                     },
                                     setUploading = { isUploading = it }
@@ -132,6 +137,7 @@ fun ApplyJobScreen(jobId: String) {
                 ) {
                     Text(if (hasApplied) "Applied" else "Apply Now")
                 }
+
 
                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -154,6 +160,88 @@ fun ApplyJobScreen(jobId: String) {
 }
 
 
+//fun uploadResumeAndApply(
+//    seekerId: String,
+//    jobId: String,
+//    resumeUri: Uri,
+//    onResult: (Boolean, String?) -> Unit,
+//    setUploading: (Boolean) -> Unit
+//) {
+//    setUploading(true)
+//
+//    val auth = FirebaseAuth.getInstance()
+//    val db = FirebaseFirestore.getInstance()
+//    val userEmail = auth.currentUser?.email
+//
+//    if (userEmail == null) {
+//        onResult(false, "User email not found.")
+//        setUploading(false)
+//        return
+//    }
+//
+//    val storageRef = FirebaseStorage.getInstance()
+//        .getReference("resumes/$seekerId/$jobId.pdf")
+//
+//    storageRef.putFile(resumeUri)
+//        .addOnSuccessListener {
+//            storageRef.downloadUrl.addOnSuccessListener { resumeDownloadUri ->
+//
+//                val application = hashMapOf(
+//                    "seeker_id" to seekerId,
+//                    "job_id" to jobId,
+//                    "status" to "pending",
+//                    "resumeUrl" to resumeDownloadUri.toString()
+//                )
+//
+//                db.collection("applications")
+//                    .add(application)
+//                    .addOnSuccessListener {
+//                        // Now update the job post with the applicant's email
+//                        val jobPostRef = db.collection("job_posts").document(jobId)
+//
+//                        jobPostRef.get()
+//                            .addOnSuccessListener { document ->
+//                                if (document.exists()) {
+//                                    val currentApplicants = document.get("applicants") as? MutableList<String> ?: mutableListOf()
+//                                    if (!currentApplicants.contains(userEmail)) {
+//                                        currentApplicants.add(userEmail)
+//
+//                                        jobPostRef.update("applicants", currentApplicants)
+//                                            .addOnSuccessListener {
+//                                                onResult(true, null)
+//                                            }
+//                                            .addOnFailureListener { e ->
+//                                                onResult(false, "Failed to update job post: ${e.message}")
+//                                            }
+//                                    } else {
+//                                        onResult(true, null) // Already applied
+//                                    }
+//                                } else {
+//                                    onResult(false, "Job post not found.")
+//                                }
+//                                setUploading(false)
+//                            }
+//                            .addOnFailureListener { e ->
+//                                onResult(false, "Failed to fetch job post: ${e.message}")
+//                                setUploading(false)
+//                            }
+//                    }
+//                    .addOnFailureListener { e ->
+//                        onResult(false, "Failed to submit application: ${e.message}")
+//                        setUploading(false)
+//                    }
+//
+//            }.addOnFailureListener { e ->
+//                onResult(false, "Failed to get resume URL: ${e.message}")
+//                setUploading(false)
+//            }
+//        }
+//        .addOnFailureListener { e ->
+//            onResult(false, "Resume upload failed: ${e.message}")
+//            setUploading(false)
+//        }
+//}
+
 fun uploadResumeAndApply(
     seekerId: String,
     jobId: String,
@@ -165,73 +253,96 @@ fun uploadResumeAndApply(
 
     val auth = FirebaseAuth.getInstance()
     val db = FirebaseFirestore.getInstance()
-    val userEmail = auth.currentUser?.email
-
-    if (userEmail == null) {
-        onResult(false, "User email not found.")
-        setUploading(false)
-        return
-    }
 
     val storageRef = FirebaseStorage.getInstance()
         .getReference("resumes/$seekerId/$jobId.pdf")
 
-    storageRef.putFile(resumeUri)
-        .addOnSuccessListener {
-            storageRef.downloadUrl.addOnSuccessListener { resumeDownloadUri ->
+    // Step 1: Get seeker email from users collection
+    db.collection("users").document(seekerId)
+        .get()
+        .addOnSuccessListener { seekerDoc ->
+            val seekerEmail = seekerDoc.getString("email")
 
-                val application = hashMapOf(
-                    "seeker_id" to seekerId,
-                    "job_id" to jobId,
-                    "status" to "pending",
-                    "resumeUrl" to resumeDownloadUri.toString()
-                )
-
-                db.collection("applications")
-                    .add(application)
-                    .addOnSuccessListener {
-                        // Now update the job post with the applicant's email
-                        val jobPostRef = db.collection("job_posts").document(jobId)
-
-                        jobPostRef.get()
-                            .addOnSuccessListener { document ->
-                                if (document.exists()) {
-                                    val currentApplicants = document.get("applicants") as? MutableList<String> ?: mutableListOf()
-                                    if (!currentApplicants.contains(userEmail)) {
-                                        currentApplicants.add(userEmail)
-
-                                        jobPostRef.update("applicants", currentApplicants)
-                                            .addOnSuccessListener {
-                                                onResult(true, null)
-                                            }
-                                            .addOnFailureListener { e ->
-                                                onResult(false, "Failed to update job post: ${e.message}")
-                                            }
-                                    } else {
-                                        onResult(true, null) // Already applied
-                                    }
-                                } else {
-                                    onResult(false, "Job post not found.")
-                                }
-                                setUploading(false)
-                            }
-                            .addOnFailureListener { e ->
-                                onResult(false, "Failed to fetch job post: ${e.message}")
-                                setUploading(false)
-                            }
-                    }
-                    .addOnFailureListener { e ->
-                        onResult(false, "Failed to submit application: ${e.message}")
-                        setUploading(false)
-                    }
-
-            }.addOnFailureListener { e ->
-                onResult(false, "Failed to get resume URL: ${e.message}")
+            if (seekerEmail.isNullOrEmpty()) {
+                onResult(false, "Seeker email not found.")
                 setUploading(false)
+                return@addOnSuccessListener
             }
+
+            // Step 2: Get recruiter email from job_posts collection
+            db.collection("job_posts").document(jobId)
+                .get()
+                .addOnSuccessListener { jobPostDoc ->
+                    val recruiterEmail = jobPostDoc.getString("email")
+
+                    if (recruiterEmail.isNullOrEmpty()) {
+                        onResult(false, "Recruiter email not found.")
+                        setUploading(false)
+                        return@addOnSuccessListener
+                    }
+
+                    // Step 3: Upload resume
+                    storageRef.putFile(resumeUri)
+                        .addOnSuccessListener {
+                            storageRef.downloadUrl.addOnSuccessListener { resumeDownloadUri ->
+
+                                val application = hashMapOf(
+                                    "seeker_id" to seekerId,
+                                    "job_id" to jobId,
+                                    "status" to "pending",
+                                    "resumeUrl" to resumeDownloadUri.toString(),
+                                    "seeker_email" to seekerEmail,
+                                    "recruiter_email" to recruiterEmail
+                                )
+
+                                db.collection("applications")
+                                    .add(application)
+                                    .addOnSuccessListener {
+                                        // Update job post with applicant's email
+                                        val currentApplicants = (jobPostDoc.get("applicants") as? MutableList<String>) ?: mutableListOf()
+
+                                        if (!currentApplicants.contains(seekerEmail)) {
+                                            currentApplicants.add(seekerEmail)
+
+                                            db.collection("job_posts").document(jobId)
+                                                .update("applicants", currentApplicants)
+                                                .addOnSuccessListener {
+                                                    onResult(true, null)
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    onResult(false, "Failed to update job post: ${e.message}")
+                                                }
+                                        } else {
+                                            onResult(true, null) // Already applied
+                                        }
+
+                                        setUploading(false)
+                                    }
+                                    .addOnFailureListener { e ->
+                                        onResult(false, "Failed to submit application: ${e.message}")
+                                        setUploading(false)
+                                    }
+
+                            }.addOnFailureListener { e ->
+                                onResult(false, "Failed to get resume URL: ${e.message}")
+                                setUploading(false)
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            onResult(false, "Resume upload failed: ${e.message}")
+                            setUploading(false)
+                        }
+
+                }
+                .addOnFailureListener { e ->
+                    onResult(false, "Failed to fetch job post: ${e.message}")
+                    setUploading(false)
+                }
+
         }
         .addOnFailureListener { e ->
-            onResult(false, "Resume upload failed: ${e.message}")
+            onResult(false, "Failed to fetch seeker data: ${e.message}")
             setUploading(false)
         }
 }
+

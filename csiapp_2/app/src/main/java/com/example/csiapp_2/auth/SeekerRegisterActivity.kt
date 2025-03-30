@@ -5,29 +5,31 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
-import com.example.csiapp_2.R
+import androidx.lifecycle.lifecycleScope
+import com.example.csiapp_2.ui.theme.LightPurpleGradient
+import com.example.csiapp_2.ui.theme.Purple40
+import com.example.csiapp_2.ui.theme.Purple80
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SeekerRegisterActivity : ComponentActivity() {
     private val auth = FirebaseAuth.getInstance()
@@ -53,91 +55,85 @@ class SeekerRegisterActivity : ComponentActivity() {
 
         LaunchedEffect(showError) {
             if (showError) {
-                kotlinx.coroutines.delay(4000)
+                delay(4000)
                 showError = false
             }
         }
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                painter = painterResource(id = R.drawable.jobportalbg),
-                contentDescription = "Background",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(0.7f)
-                    .background(Color.Black)
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(colors = LightPurpleGradient) // Light Purple Gradient
+                )
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.95f)),
+                elevation = CardDefaults.cardElevation(8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White.copy(alpha = 0.9f))
-                        .padding(16.dp)
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Column {
-                        Text(
-                            text = "Welcome Seeker",
-                            fontSize = 24.sp,
-                            color = Color(0xFF6200EE),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                    Text(
+                        text = "Seeker Registration",
+                        fontSize = 26.sp,
+                        color = Purple40,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                        CustomTextField(value = name, onValueChange = { name = it }, label = "Name")
-                        CustomTextField(value = email, onValueChange = { email = it }, label = "Email")
-                        CustomTextField(value = skills, onValueChange = { skills = it }, label = "Skills")
-                        CustomTextField(value = location, onValueChange = { location = it }, label = "Location")
-                        CustomTextField(value = experience, onValueChange = { experience = it }, label = "Experience")
-                        CustomTextField(value = password, onValueChange = { password = it }, label = "Password", isPassword = true)
+                    CustomTextField(value = name, onValueChange = { name = it }, label = "Full Name")
+                    CustomTextField(value = email, onValueChange = { email = it }, label = "Email Address")
+                    CustomTextField(value = skills, onValueChange = { skills = it }, label = "Key Skills")
+                    CustomTextField(value = location, onValueChange = { location = it }, label = "Location")
+                    CustomTextField(value = experience, onValueChange = { experience = it }, label = "Years of Experience")
+                    CustomTextField(value = password, onValueChange = { password = it }, label = "Password", isPassword = true)
 
-                        if (showError) {
-                            Text("Please fill all the details!", color = Color.Red)
-                        }
+                    if (showError) {
+                        Text("Please fill all the fields!", color = Color.Red, fontSize = 14.sp)
+                    }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                        ElevatedButton(
-                            onClick = {
-                                if (name.isNotBlank() && email.isNotBlank() && skills.isNotBlank() &&
-                                    location.isNotBlank() && experience.isNotBlank() && password.isNotBlank()
-                                ) {
-                                    showError = false
-                                    registerSeeker(name, email, skills, location, experience, password)
-                                } else {
-                                    showError = true
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Register")
-                        }
+                    Button(
+                        onClick = {
+                            if (name.isNotBlank() && email.isNotBlank() && skills.isNotBlank() &&
+                                location.isNotBlank() && experience.isNotBlank() && password.isNotBlank()
+                            ) {
+                                showError = false
+                                registerSeeker(name, email, skills, location, experience, password)
+                            } else {
+                                showError = true
+                            }
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Purple40
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Register", fontSize = 18.sp, color = Color.White)
+                    }
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                        OutlinedButton(
-                            onClick = {
-                                val intent = Intent(this@SeekerRegisterActivity, LoginActivity::class.java)
-                                intent.putExtra("role", "seeker")
-                                startActivity(intent)
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Already have an account? Log in")
-                        }
+                    OutlinedButton(
+                        onClick = {
+                            val intent = Intent(this@SeekerRegisterActivity, LoginActivity::class.java)
+                            intent.putExtra("role", "seeker")
+                            startActivity(intent)
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Already have an account? Log in", fontSize = 16.sp, color = Purple40)
                     }
                 }
             }
@@ -149,12 +145,17 @@ class SeekerRegisterActivity : ComponentActivity() {
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text(label, color = Color(0xFF6200EE)) },
+            label = { Text(label, color = Purple40) },
             textStyle = LocalTextStyle.current.copy(color = Color.Black),
             singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Purple40,
+                unfocusedBorderColor = Color.Gray
+            ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = 6.dp),
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             keyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default
         )

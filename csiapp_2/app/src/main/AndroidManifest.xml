@@ -59,6 +59,10 @@
 
         <activity android:name=".seeker.SeekerInboxActivity" />
 
+        <activity android:name=".seeker.SeekerAppliedJobsActivity" />
+
+        <activity android:name=".seeker.SeekerViewJobDetailsActivity" />
+
         <activity
             android:name=".recruiter.RecruiterDashboardActivity"
             android:exported="true"
