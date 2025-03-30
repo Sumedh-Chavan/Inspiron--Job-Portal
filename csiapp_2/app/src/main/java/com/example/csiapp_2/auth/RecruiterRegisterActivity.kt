@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,18 +12,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
-import com.example.csiapp_2.R
+import com.example.csiapp_2.ui.theme.Purple40
+import com.example.csiapp_2.ui.theme.Purple80
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
@@ -56,39 +54,32 @@ class RecruiterRegisterActivity : ComponentActivity() {
             }
         }
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                painter = painterResource(id = R.drawable.jobportalbg),
-                contentDescription = "Background",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(0.7f)
-                    .background(Color.Black)
-            )
-
+        // Gradient Background
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(listOf(Purple80, Purple40))
+                )
+                .padding(16.dp)
+        ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center
             ) {
+                // Glassmorphic Card
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
                         .background(Color.White.copy(alpha = 0.9f))
-                        .padding(16.dp)
+                        .padding(20.dp)
                 ) {
                     Column {
                         Text(
                             text = "Welcome Recruiter",
-                            fontSize = 24.sp,
-                            color = Color(0xFF6200EE),
+                            fontSize = 26.sp,
+                            color = Purple40,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -115,9 +106,10 @@ class RecruiterRegisterActivity : ComponentActivity() {
                                     showError = true
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = Purple40)
                         ) {
-                            Text("Register")
+                            Text("Register", color = Color.White)
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -130,7 +122,7 @@ class RecruiterRegisterActivity : ComponentActivity() {
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Already have an account? Log in")
+                            Text("Already have an account? Log in", color = Purple40)
                         }
                     }
                 }
@@ -143,7 +135,7 @@ class RecruiterRegisterActivity : ComponentActivity() {
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text(label, color = Color(0xFF6200EE)) },
+            label = { Text(label, color = Purple40) },
             textStyle = LocalTextStyle.current.copy(color = Color.Black),
             singleLine = true,
             modifier = Modifier
@@ -169,7 +161,7 @@ class RecruiterRegisterActivity : ComponentActivity() {
                             "notifications" to emptyList<String>(),
                             "job_posts" to emptyList<String>(),
                             "hasUnreadNotifications" to false,
-                            "fcmToken" to fcmToken // Store FCM Token
+                            "fcmToken" to fcmToken
                         )
 
                         userId?.let {
